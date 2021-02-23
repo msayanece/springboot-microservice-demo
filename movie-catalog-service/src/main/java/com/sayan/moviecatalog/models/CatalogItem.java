@@ -4,12 +4,12 @@ public class CatalogItem {
 
 	private String name;
 	private String description;
-	private int rating;
+	private String rating;
 	public CatalogItem() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public CatalogItem(String name, String description, int rating) {
+	public CatalogItem(String name, String description, String rating) {
 		super();
 		this.name = name;
 		this.description = description;
@@ -27,10 +27,10 @@ public class CatalogItem {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-	public int getRating() {
+	public String getRating() {
 		return rating;
 	}
-	public void setRating(int rating) {
+	public void setRating(String rating) {
 		this.rating = rating;
 	}
 }

@@ -1,30 +1,35 @@
 package com.sayan.moviecatalog.resources;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
 
 import com.sayan.moviecatalog.models.CatalogItem;
+import com.sayan.moviecatalog.models.Movie;
+import com.sayan.moviecatalog.models.RatingResponse;
 
 @RestController
 @RequestMapping("/catalog")
 public class MovieCatalogResource {
 
+	@Autowired
+	RestTemplate restTemplate;
 	
 	@RequestMapping("/{userId}")
 	public List<CatalogItem> getCatalogs(@PathVariable("userId") String userId){
-		return Collections.singletonList(
-			new CatalogItem("Forest Gump", 
-					"Forrest Gump is a 1994 American romantic "
-					+ "comedy-drama film directed by Robert Zemeckis "
-					+ "and written by Eric Roth. It is based on the 1986 novel "
-					+ "of the same name by Winston Groom and stars Tom Hanks, "
-					+ "Robin Wright, Gary Sinise, Mykelti Williamson and Sally Field.",
-					4
-					)
-				);
+		//get movie list with ratings
+		RatingResponse ratingResponse = restTemplate.getForObject("http://ratings-data-service/rating/foo", RatingResponse.class);
+		
+		//get movie details and populate catalogs and then return 
+		return ratingResponse.getRatings().stream().map(rating -> {
+				Movie movie = restTemplate.getForObject("http://movie-info-service/movie/"+rating.getMovieId(), Movie.class);
+				return new CatalogItem(movie.getName(), "desc", rating.getRating());
+			}).collect(Collectors.toList());
+		
 	}
 }
