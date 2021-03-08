@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import com.sayan.moviecatalog.models.CatalogItem;
 import com.sayan.moviecatalog.models.Movie;
@@ -20,10 +21,19 @@ public class MovieCatalogResource {
 	@Autowired
 	RestTemplate restTemplate;
 	
-	@RequestMapping("/{userId}")
+    @Autowired
+    WebClient.Builder webClientBuilder;
+	
+	@RequestMapping("/all/{userId}")
 	public List<CatalogItem> getCatalogs(@PathVariable("userId") String userId){
 		//get movie list with ratings
+		System.out.println("called");
 		RatingResponse ratingResponse = restTemplate.getForObject("http://ratings-data-service/rating/foo", RatingResponse.class);
+		
+		
+////		Alternative WebClient way
+//		RatingResponse ratingResponse = webClientBuilder.build().get().uri("http://ratings-data-service/rating/foo/")
+//		.retrieve().bodyToMono(RatingResponse.class).block();
 		
 		//get movie details and populate catalogs and then return 
 		return ratingResponse.getRatings().stream().map(rating -> {
@@ -31,5 +41,11 @@ public class MovieCatalogResource {
 				return new CatalogItem(movie.getName(), "desc", rating.getRating());
 			}).collect(Collectors.toList());
 		
+	}
+	
+
+	@RequestMapping("/test")
+	public String getCatalogs(){
+		return "connection OK";
 	}
 }
