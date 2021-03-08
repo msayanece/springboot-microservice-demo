@@ -7,19 +7,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import com.sayan.moviecatalog.models.CatalogItem;
 import com.sayan.moviecatalog.models.Movie;
 import com.sayan.moviecatalog.models.RatingResponse;
+import com.sayan.moviecatalog.services.MovieInfoService;
+import com.sayan.moviecatalog.services.RatingService;
 
 @RestController
 @RequestMapping("/catalog")
 public class MovieCatalogResource {
 
 	@Autowired
-	RestTemplate restTemplate;
+	RatingService ratingService;
+	
+	@Autowired
+	MovieInfoService movieInfoService;
 	
     @Autowired
     WebClient.Builder webClientBuilder;
@@ -28,7 +32,7 @@ public class MovieCatalogResource {
 	public List<CatalogItem> getCatalogs(@PathVariable("userId") String userId){
 		//get movie list with ratings
 		System.out.println("called");
-		RatingResponse ratingResponse = restTemplate.getForObject("http://ratings-data-service/rating/foo", RatingResponse.class);
+		RatingResponse ratingResponse = ratingService.getRatingsResponse();
 		
 		
 ////		Alternative WebClient way
@@ -37,12 +41,11 @@ public class MovieCatalogResource {
 		
 		//get movie details and populate catalogs and then return 
 		return ratingResponse.getRatings().stream().map(rating -> {
-				Movie movie = restTemplate.getForObject("http://movie-info-service/movie/"+rating.getMovieId(), Movie.class);
+				Movie movie = movieInfoService.getMovieInfo(rating);
 				return new CatalogItem(movie.getName(), "desc", rating.getRating());
 			}).collect(Collectors.toList());
 		
 	}
-	
 
 	@RequestMapping("/test")
 	public String getCatalogs(){
