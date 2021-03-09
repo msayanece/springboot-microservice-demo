@@ -1,9 +1,11 @@
 package com.sayan.moviecatalog.resources;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,9 +48,21 @@ public class MovieCatalogResource {
 			}).collect(Collectors.toList());
 		
 	}
+	
+	@Value("${testValue}")
+	private String value;
+	
+	@Value("${valueNotFound: defaultValue}")
+	private String defaultValue;
 
+	@Value("${testList}")
+	private List<String> values;
+	
+	@Value("#{${testMap}}")
+	private Map<String, String> valueMap;
+	
 	@RequestMapping("/test")
-	public String getCatalogs(){
-		return "connection OK";
+	public String test(){
+		return "evaluated value: " + value + ", defaultValue: " + defaultValue + ", values: " + values + ", valueMap: " + valueMap;
 	}
 }
