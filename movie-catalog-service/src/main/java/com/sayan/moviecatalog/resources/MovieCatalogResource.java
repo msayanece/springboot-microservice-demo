@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import com.sayan.moviecatalog.DBConfig;
 import com.sayan.moviecatalog.models.CatalogItem;
 import com.sayan.moviecatalog.models.Movie;
 import com.sayan.moviecatalog.models.RatingResponse;
@@ -61,8 +62,19 @@ public class MovieCatalogResource {
 	@Value("#{${testMap}}")
 	private Map<String, String> valueMap;
 	
+	@Value("${db.connection: defaultConnection}")
+	private String dbConnectionValue;
+	
 	@RequestMapping("/test")
 	public String test(){
 		return "evaluated value: " + value + ", defaultValue: " + defaultValue + ", values: " + values + ", valueMap: " + valueMap;
+	}
+	
+	@Autowired
+	private DBConfig dBConfig;
+	
+	@RequestMapping("/dbCon")
+	public String dbConnectionValue(){
+		return dbConnectionValue + dBConfig.getUsername();
 	}
 }
